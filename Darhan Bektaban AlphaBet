@@ -3,16 +3,19 @@
     "project_name_primary": "Darhan Bektaban Ailippe",
     "project_name_secondary": "Darhan Bektaban AlphaBet",
     "author": "Darhan Bektaban",
-    "version": "1.0",
-    "description": "Bi-directional mapping rules for the QAZ Keyboard Layout and Alphabet."
+    "version": "1.1",
+    "description": "Bi-directional mapping with strict separation of Core and Loan letters, including comprehensive collision handling for accuracy."
   },
   "logic": {
     "forward": {
       "description": "Cyrillic to Darhan Bektaban Latin (Encoding)",
       "special_rules": [
-        { "input": "ия", "output": "ja", "priority": 1 }
+        { "input": "ция", "output": "sja", "priority": 1 },
+        { "input": "цио", "output": "sjo", "priority": 1 },
+        { "input": "ия", "output": "ja", "priority": 2 }
       ],
-      "standard_map": {
+      "core_map": {
+        "description": "Native and established Kazakh letters",
         "а": "a",   "ә": "ai",  "б": "b",   "д": "d",
         "е": "e",   "г": "g",   "ғ": "gh",  "х": "h",
         "һ": "h",   "і": "i",   "и": "j",   "й": "j",
@@ -22,12 +25,40 @@
         "т": "t",   "ұ": "u",   "ү": "ui",  "у": "uu",
         "ы": "y",   "з": "z",   "ж": "zh",  "ю": "juu",
         "я": "ja"
+      },
+      "loan_map": {
+        "description": "Letters found primarily in Russian loanwords",
+        "в": "v",
+        "ф": "f",
+        "ц": "ts",
+        "ч": "ch",
+        "щ": "shch",
+        "э": "e",
+        "ё": "jo",
+        "ь": "'",
+        "ъ": ""
       }
     },
     "reverse": {
       "description": "Darhan Bektaban Latin to Cyrillic (Decoding)",
-      "note": "Context required for 'j' (и/й) and 'ja' (я/ия)",
+      "collisions": {
+        "description": "AMBIGUITY WARNING: These Latin tokens map to multiple Cyrillic options. Dictionary lookups required for accuracy.",
+        "j":   ["й", "и"],
+        "h":   ["х", "һ"],
+        "e":   ["е", "э"],
+        "ja":  ["я", "ия", "иа", "йа"],
+        "juu": ["ю", "иу", "йу"],
+        "gn":  ["ң", "гн"],
+        "sh":  ["ш", "сх", "сһ"],
+        "ts":  ["ц", "тс"],
+        "jo":  ["ё", "ио", "йо"],
+        "sja": ["ция", "сия", "циа", "сиа", "ця", "ся"],
+        "sjo": ["цио", "сио", "цё", "сё"]
+      },
       "token_map": {
+        "shch": "щ",
+        "sja": "ция",
+        "sjo": "цио",
         "uoi": "ө",
         "juu": "ю",
         "uu": "у",
@@ -35,9 +66,12 @@
         "gh": "ғ",
         "sh": "ш",
         "zh": "ж",
+        "ch": "ч",
+        "ts": "ц",
         "ai": "ә",
         "ui": "ү",
-        "ja": "я"
+        "ja": "я",
+        "jo": "ё"
       },
       "single_char_map": {
         "j": "й", 
@@ -45,7 +79,8 @@
         "g": "г", "h": "х", "i": "і", "k": "к",
         "l": "л", "m": "м", "n": "н", "o": "о",
         "p": "п", "q": "қ", "r": "р", "s": "с",
-        "t": "т", "u": "ұ", "y": "ы", "z": "з"
+        "t": "т", "u": "ұ", "y": "ы", "z": "з",
+        "v": "в", "f": "ф", "'": "ь"
       }
     }
   }
