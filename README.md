@@ -1,6 +1,6 @@
 # Darhan Bektaban Ailippe (AlphaBet)
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Version](https://img.shields.io/badge/version-1.0-green.svg) ![Language](https://img.shields.io/badge/language-Kazakh-blue)
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Version](https://img.shields.io/badge/version-1.1-green.svg) ![Language](https://img.shields.io/badge/language-Kazakh-blue)
 
 **Darhan Bektaban Ailippe** is a standardized Latin-based alphabet system and "QAZ" keyboard layout for the Kazakh language.
 
@@ -8,25 +8,25 @@ This repository provides the official character mapping rules, machine-readable 
 
 ## 🔤 The Alphabet Rules
 
-The system uses a strictly logical mapping designed for the QWERTY keyboard without requiring special characters (diacritics).
+The system uses a strictly logical mapping designed for the QWERTY keyboard. Mapping is derived directly from `ailippe_map.json` (Version 1.1).
 
 | Cyrillic | Latin (DB Ailippe) | Note |
 | :--- | :--- | :--- |
 | **А а** | **A a** | |
-| **Ә ә** | **Ai ai** | |
+| **Ә ә** | **Ai ai** | Digraph |
 | **Б б** | **B b** | |
 | **Д д** | **D d** | |
-| **Е е** | **E e** | |
+| **Е е / Э э** | **E e** | |
 | **Г г** | **G g** | |
 | **Ғ ғ** | **Gh gh** | Digraph |
-| **Х х / Һ һ**| **H h** | |
+| **Х х / Һ һ**| **H h** | Maps two Cyrillic chars to one Latin char |
 | **І і** | **I i** | |
 | **И и / Й й**| **J j** | Phonetic mapping |
 | **К к** | **K k** | |
 | **Л л** | **L l** | |
 | **М м** | **M m** | |
 | **Н н** | **N n** | |
-| **Ң ң** | **Gn gn** | *Distinct from N* |
+| **Ң ң** | **Gn gn** | Digraph (Distinct from N) |
 | **О о** | **O o** | |
 | **Ө ө** | **Uoi uoi** | Trigraph |
 | **П п** | **P p** | |
@@ -41,17 +41,31 @@ The system uses a strictly logical mapping designed for the QWERTY keyboard with
 | **Ы ы** | **Y y** | |
 | **З з** | **Z z** | |
 | **Ж ж** | **Zh zh** | Digraph |
+| **Ю ю** | **Juu juu** | Standard Mapping |
+| **Я я** | **Ja ja** | Standard Mapping |
+| **В в** | **V v** | Loan letter |
+| **Ф ф** | **F f** | Loan letter |
+| **Ц ц** | **Ts ts** | Loan letter |
+| **Ч ч** | **Ch ch** | Loan letter |
+| **Щ щ** | **Shch shch** | Loan letter |
+| **Ё ё** | **Jo jo** | Loan letter |
+| **Ь ь** | **'** | Soft Sign (Apostrophe) |
+| **Ъ ъ** | **(none)** | Hard Sign is ignored (Empty string) |
 
 ### Special Context Rules
-* **Ю** $\rightarrow$ **Juu**
-* **Я** $\rightarrow$ **Ja**
-* **ИЯ** $\rightarrow$ **Ja** (Simplified exception: avoids double J)
+These rules (defined in `logic.forward.special_rules`) have **Priority 1**. They override the standard single-letter mapping to preserve accurate pronunciation.
+
+| Sequence | Maps to | Example Input | Example Output |
+| :--- | :--- | :--- | :--- |
+| **ция** | **sja** | Авиа**ция** | Avja**sja** |
+| **цио** | **sjo** | Ак**цио**нер | Ak**sjo**ner |
+| **ия** | **ja** | Аз**ия** | Az**ja** |
 
 ---
 
 ## 💻 Technical Usage
 
-This repository includes a Python script for automatic transliteration.
+This repository includes a Python script (`translator.py`) that uses the rules defined in `ailippe_map.json`.
 
 ### 1. Installation
 Clone the repository:
