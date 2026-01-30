@@ -5,98 +5,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darhan Bektaban Ailippe Converter</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
         h1 { color: #333; text-align: center; }
         .container { display: flex; flex-direction: column; gap: 20px; }
-        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; font-family: monospace; }
         label { font-weight: bold; margin-bottom: 5px; display: block; }
-        button { padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; align-self: center; }
-        button:hover { background-color: #0056b3; }
-        .footer { margin-top: 40px; font-size: 0.8em; text-align: center; color: #666; }
+        .buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        button { padding: 12px 24px; font-size: 16px; color: white; border: none; border-radius: 6px; cursor: pointer; flex: 1; min-width: 140px; max-width: 200px; transition: opacity 0.2s; }
+        .btn-down { background-color: #007bff; }
+        .btn-up { background-color: #28a745; }
+        button:hover { opacity: 0.9; }
+        .footer { margin-top: 40px; font-size: 0.8em; text-align: center; color: #666; border-top: 1px solid #ddd; padding-top: 20px;}
+        .note { font-size: 0.85rem; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Darhan Bektaban Ailippe Converter</h1>
+    <h1>Darhan Bektaban Ailippe</h1>
     
     <div class="container">
         <div>
-            <label for="input">Cyrillic Kazakh (Kiril):</label>
-            <textarea id="input" placeholder="Enter text here... (e.g. Сәлем)"></textarea>
+            <label for="cyrillic">Cyrillic Kazakh (Kiril):</label>
+            <textarea id="cyrillic" placeholder="Сәлем, Қазақстан!"></textarea>
         </div>
 
-        <button onclick="convertText()">Convert to Latin ↓</button>
+        <div class="buttons">
+            <button class="btn-down" onclick="toLatin()">↓ To Latin (QAZ)</button>
+            <button class="btn-up" onclick="toCyrillic()">↑ To Cyrillic</button>
+        </div>
 
         <div>
-            <label for="output">Darhan Bektaban Ailippe:</label>
-            <textarea id="output" readonly></textarea>
+            <label for="latin">Darhan Bektaban Ailippe (Latin):</label>
+            <textarea id="latin" placeholder="Salem, Qazaqstan!"></textarea>
+            <div class="note">*Based on QAZ Keyboard Layout & ailippe.json v1.1</div>
         </div>
     </div>
 
     <div class="footer">
-        Official Converter based on the QAZ Keyboard Layout.
+        <p>Official Reference: <a href="https://github.com/DarhanBektaban/Ailippe" target="_blank">GitHub Repository</a></p>
     </div>
 
     <script>
-        function convertText() {
-            const input = document.getElementById('input').value;
+        /*******************************************************
+         * LOGIC BASED ON AILIPPE.JSON (v1.1)
+         *******************************************************/
+
+        // 1. FORWARD MAP (Cyrillic -> Latin)
+        const cyrToLat = {
+            'а':'a',   'А':'A',
+            'ә':'ai',  'Ә':'Ai',
+            'б':'b',   'Б':'B',
+            'д':'d',   'Д':'D',
+            'е':'e',   'Е':'E',
+            'ф':'f',   'Ф':'F',
+            'г':'g',   'Г':'G',
+            'ғ':'gh',  'Ғ':'Gh',
+            'х':'h',   'Х':'H',
+            'һ':'h',   'Һ':'H',
+            'і':'i',   'І':'I',
+            'и':'j',   'И':'J',
+            'й':'j',   'Й':'J',
+            'к':'k',   'К':'K',
+            'л':'l',   'Л':'L',
+            'м':'m',   'М':'M',
+            'н':'n',   'Н':'N',
+            'ң':'gn',  'Ң':'Gn',
+            'о':'o',   'О':'O',
+            'ө':'uoi', 'Ө':'Uoi',
+            'п':'p',   'П':'P',
+            'қ':'q',   'Қ':'Q',
+            'р':'r',   'Р':'R',
+            'с':'s',   'С':'S',
+            'т':'t',   'Т':'T',
+            'ұ':'u',   'Ұ':'U',
+            'ү':'ui',  'Ү':'Ui',
+            'в':'v',   'В':'V',
+            'у':'uu',  'У':'Uu',
+            'ы':'y',   'Ы':'Y',
+            'з':'z',   'З':'Z',
+            'ж':'zh',  'Ж':'Zh',
+            'ш':'sh',  'Ш':'Sh',
+            'ч':'ch',  'Ч':'Ch',
+            'ц':'ts',  'Ц':'Ts',
+            'ю':'juu', 'Ю':'Juu',
+            'я':'ja',  'Я':'Ja',
+            'щ':'shch','Щ':'Shch',
+            'ь':"'",   'Ь':"'",
+            'ъ':'',    'Ъ':'',
+            'ё':'jo',  'Ё':'Jo',
+            'э':'e',   'Э':'E'
+        };
+
+        // 2. REVERSE RULES ARRAY (Latin -> Cyrillic)
+        // MUST BE ORDERED: Tetragraphs -> Trigraphs -> Digraphs -> Monographs
+        const latToCyrRules = [
+            // --- Tetragraphs (4 letters) ---
+            { l: "Shch", c: "Щ" }, { l: "shch", c: "щ" },
+
+            // --- Trigraphs (3 letters) ---
+            { l: "Uoi",  c: "Ө" }, { l: "uoi",  c: "ө" },
+            { l: "Juu",  c: "Ю" }, { l: "juu",  c: "ю" },
+
+            // --- Digraphs (2 letters) ---
+            { l: "Gn", c: "Ң" },  { l: "gn", c: "ң" },
+            { l: "Gh", c: "Ғ" },  { l: "gh", c: "ғ" },
+            { l: "Ai", c: "Ә" },  { l: "ai", c: "ә" },
+            { l: "Ui", c: "Ү" },  { l: "ui", c: "ү" },
+            { l: "Uu", c: "У" },  { l: "uu", c: "у" },
+            { l: "Zh", c: "Ж" },  { l: "zh", c: "ж" },
+            { l: "Sh", c: "Ш" },  { l: "sh", c: "ш" },
+            { l: "Ch", c: "Ч" },  { l: "ch", c: "ч" },
+            { l: "Ts", c: "Ц" },  { l: "ts", c: "ц" },
+            { l: "Ja", c: "Я" },  { l: "ja", c: "я" },
+            { l: "Jo", c: "Ё" },  { l: "jo", c: "ё" },
+
+            // --- Monographs (1 letter) ---
+            { l: "A", c: "А" }, { l: "a", c: "а" },
+            { l: "B", c: "Б" }, { l: "b", c: "б" },
+            { l: "D", c: "Д" }, { l: "d", c: "д" },
+            { l: "E", c: "Е" }, { l: "e", c: "е" },
+            { l: "F", c: "Ф" }, { l: "f", c: "ф" },
+            { l: "G", c: "Г" }, { l: "g", c: "г" },
+            { l: "H", c: "Х" }, { l: "h", c: "х" },
+            { l: "I", c: "І" }, { l: "i", c: "і" },
+            { l: "J", c: "И" }, { l: "j", c: "и" },
+            { l: "K", c: "К" }, { l: "k", c: "к" },
+            { l: "L", c: "Л" }, { l: "l", c: "л" },
+            { l: "M", c: "М" }, { l: "m", c: "м" },
+            { l: "N", c: "Н" }, { l: "n", c: "н" },
+            { l: "O", c: "О" }, { l: "o", c: "о" },
+            { l: "P", c: "П" }, { l: "p", c: "п" },
+            { l: "Q", c: "Қ" }, { l: "q", c: "қ" },
+            { l: "R", c: "Р" }, { l: "r", c: "р" },
+            { l: "S", c: "С" }, { l: "s", c: "с" },
+            { l: "T", c: "Т" }, { l: "t", c: "т" },
+            { l: "U", c: "Ұ" }, { l: "u", c: "ұ" },
+            { l: "V", c: "В" }, { l: "v", c: "в" },
+            { l: "Y", c: "Ы" }, { l: "y", c: "ы" },
+            { l: "Z", c: "З" }, { l: "z", c: "з" },
+            { l: "'", c: "ь" }
+        ];
+
+        // --- FUNCTIONS ---
+
+        function toLatin() {
+            const input = document.getElementById('cyrillic').value;
             let output = '';
-
-            // The Mapping Rules (Strict Version)
-            const map = {
-                'а': 'a', 'А': 'A',
-                'ә': 'ai', 'Ә': 'Ai',
-                'б': 'b', 'Б': 'B',
-                'д': 'd', 'Д': 'D',
-                'е': 'e', 'Е': 'E',
-                'ф': 'f', 'Ф': 'F',
-                'г': 'g', 'Г': 'G',
-                'ғ': 'gh', 'Ғ': 'Gh',
-                'х': 'h', 'Х': 'H',
-                'һ': 'h', 'Һ': 'H',
-                'і': 'i', 'І': 'I',
-                'и': 'j', 'И': 'J',
-                'к': 'k', 'К': 'K',
-                'л': 'l', 'Л': 'L',
-                'м': 'm', 'М': 'M',
-                'н': 'n', 'Н': 'N',
-                'ң': 'gn', 'Ң': 'Gn',
-                'о': 'o', 'О': 'O',
-                'ө': 'uoi', 'Ө': 'Uoi',
-                'п': 'p', 'П': 'P',
-                'қ': 'q', 'Қ': 'Q',
-                'р': 'r', 'Р': 'R',
-                'с': 's', 'С': 'S',
-                'т': 't', 'Т': 'T',
-                'ұ': 'u', 'Ұ': 'U',
-                'ү': 'ui', 'Ү': 'Ui',
-                'в': 'v', 'В': 'V',
-                'у': 'uu', 'У': 'Uu',
-                'ы': 'y', 'Ы': 'Y',
-                'з': 'z', 'З': 'Z',
-                'ж': 'zh', 'Ж': 'Zh',
-                'ш': 'sh', 'Ш': 'Sh',
-                'ч': 'ch', 'Ч': 'Ch',
-                'ц': 'ts', 'Ц': 'Ts',
-                'ю': 'juu', 'Ю': 'Juu',
-                'я': 'ja', 'Я': 'Ja',
-                'щ': 'shch', 'Щ': 'Shch',
-                'ь': "'", 'ъ': '', 'Ъ': '', // Soft sign is apostrophe, hard sign ignored
-                'ё': 'jo', 'Ё': 'Jo',
-                'э': 'e', 'Э': 'E'
-            };
-
             for (let i = 0; i < input.length; i++) {
                 const char = input[i];
-                // Check if the character is in our map, otherwise keep it as is (punctuation, numbers)
-                if (map[char] !== undefined) {
-                    output += map[char];
-                } else {
-                    output += char;
-                }
+                output += cyrToLat[char] !== undefined ? cyrToLat[char] : char;
             }
+            document.getElementById('latin').value = output;
+        }
 
-            document.getElementById('output').value = output;
+        function toCyrillic() {
+            let input = document.getElementById('latin').value;
+            
+            latToCyrRules.forEach(rule => {
+                const regex = new RegExp(rule.l, 'g');
+                input = input.replace(regex, rule.c);
+            });
+
+            document.getElementById('cyrillic').value = input;
         }
     </script>
 
