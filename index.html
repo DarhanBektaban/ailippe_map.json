@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darhan Bektaban Ailippe Converter</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { color: #333; text-align: center; }
+        .container { display: flex; flex-direction: column; gap: 20px; }
+        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        label { font-weight: bold; margin-bottom: 5px; display: block; }
+        button { padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; align-self: center; }
+        button:hover { background-color: #0056b3; }
+        .footer { margin-top: 40px; font-size: 0.8em; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+
+    <h1>Darhan Bektaban Ailippe Converter</h1>
+    
+    <div class="container">
+        <div>
+            <label for="input">Cyrillic Kazakh (Kiril):</label>
+            <textarea id="input" placeholder="Enter text here... (e.g. Сәлем)"></textarea>
+        </div>
+
+        <button onclick="convertText()">Convert to Latin ↓</button>
+
+        <div>
+            <label for="output">Darhan Bektaban Ailippe:</label>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <div class="footer">
+        Official Converter based on the QAZ Keyboard Layout.
+    </div>
+
+    <script>
+        function convertText() {
+            const input = document.getElementById('input').value;
+            let output = '';
+
+            // The Mapping Rules (Strict Version)
+            const map = {
+                'а': 'a', 'А': 'A',
+                'ә': 'ai', 'Ә': 'Ai',
+                'б': 'b', 'Б': 'B',
+                'д': 'd', 'Д': 'D',
+                'е': 'e', 'Е': 'E',
+                'ф': 'f', 'Ф': 'F',
+                'г': 'g', 'Г': 'G',
+                'ғ': 'gh', 'Ғ': 'Gh',
+                'х': 'h', 'Х': 'H',
+                'һ': 'h', 'Һ': 'H',
+                'і': 'i', 'І': 'I',
+                'и': 'j', 'И': 'J',
+                'к': 'k', 'К': 'K',
+                'л': 'l', 'Л': 'L',
+                'м': 'm', 'М': 'M',
+                'н': 'n', 'Н': 'N',
+                'ң': 'gn', 'Ң': 'Gn',
+                'о': 'o', 'О': 'O',
+                'ө': 'uoi', 'Ө': 'Uoi',
+                'п': 'p', 'П': 'P',
+                'қ': 'q', 'Қ': 'Q',
+                'р': 'r', 'Р': 'R',
+                'с': 's', 'С': 'S',
+                'т': 't', 'Т': 'T',
+                'ұ': 'u', 'Ұ': 'U',
+                'ү': 'ui', 'Ү': 'Ui',
+                'в': 'v', 'В': 'V',
+                'у': 'uu', 'У': 'Uu',
+                'ы': 'y', 'Ы': 'Y',
+                'з': 'z', 'З': 'Z',
+                'ж': 'zh', 'Ж': 'Zh',
+                'ш': 'sh', 'Ш': 'Sh',
+                'ч': 'ch', 'Ч': 'Ch',
+                'ц': 'ts', 'Ц': 'Ts',
+                'ю': 'juu', 'Ю': 'Juu',
+                'я': 'ja', 'Я': 'Ja',
+                'щ': 'shch', 'Щ': 'Shch',
+                'ь': "'", 'ъ': '', 'Ъ': '', // Soft sign is apostrophe, hard sign ignored
+                'ё': 'jo', 'Ё': 'Jo',
+                'э': 'e', 'Э': 'E'
+            };
+
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i];
+                // Check if the character is in our map, otherwise keep it as is (punctuation, numbers)
+                if (map[char] !== undefined) {
+                    output += map[char];
+                } else {
+                    output += char;
+                }
+            }
+
+            document.getElementById('output').value = output;
+        }
+    </script>
+
+</body>
+</html>
