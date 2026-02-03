@@ -50,7 +50,7 @@ The system uses a strictly logical mapping designed for the QWERTY keyboard. Map
 | **Щ щ** | **Shch shch** | Loan letter |
 | **Ё ё** | **Jo jo** | Loan letter |
 | **Ь ь** | **'** | Soft Sign (Apostrophe) |
-| **Ъ ъ** | **(none)** | Hard Sign is ignored (Empty string) |
+| **Ъ ъ** | **J j** | Loan letter |
 
 ### Special Context Rules
 These rules (defined in `logic.forward.special_rules`) have **Priority 1**. They override the standard single-letter mapping to preserve accurate pronunciation.
